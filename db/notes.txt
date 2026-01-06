@@ -1,0 +1,31 @@
+- We have used GORM. It is slower than the standard database/sql. However GORM makes sure that errors are
+  caught during complie time. 
+- The standard database/sql package is fastest and allows maximum control over
+  our queries. The sqlx package wraps around database/sql 
+- While GORM provides full type safety, database/sql and sqlx does not. Errors are caught only at runtime
+- sqlc comes in handy here. SQL queries are converted into Golang functions and any errors are caught
+  during code generation or compile time. The only downside is that we need to do some setup initially
+
+sql.yaml:
+version: "1"
+packages:
+    - name: "db" --> name of go package
+      path: "./db/sqlc" --> folder where generated golang code will live
+      queries: "./db/query/" --> folder where sql queries live
+      schema: "./db/migration/" --> folder where schemas are stored
+      engine: "postgresql" --> mysql/postgresql
+      emit_json_tags: true --> should the generated model struct contain json tags 
+      emit_prepared_queries: false  --> should we used prepared sql statements for even faster performance
+      emit_interface: false --> should we generate an interface called Querier for the generated db methods
+      #emit_exact_tables_names: false --> should the model struct name be exactly the same as db table name
+
+sqlc generate:
+--> command to convert the sql code into generated golang funcs
+
+-- name: DeleteAccount :exec
+DELETE FROM accounts WHERE id = $1;
+
+name: the name of the Golang query func 
+:exec --> query func returns only error var
+:one --> query func returns only one value 
+:many --> query func returns multiple values 
