@@ -29,3 +29,23 @@ name: the name of the Golang query func
 :exec --> query func returns only error var
 :one --> query func returns only one value 
 :many --> query func returns multiple values 
+
+Handling deadlocks:
+
+- use FOR UPDATE at the end of SELECT queries to make it blocking until there is a COMMIT(and update)
+- If we have another same SELECT query at the same time, it will be blocked until the other SELECT..FOR UPDATE commits
+- For deadlocks we can pass a name to each transaction via the context (context.WithValue()) which takes a key value pair
+- The key for ctx mustn't be an in built type, so u can use vat txKey = struct{}{}, nameVal can be fmt.Sprintf("tx %d", i)
+- Inside the tx, you can obtain the name from the ctx and append it before each query like Print(txName, "Create transfer")
+- This will show you the order of queries for concurrent transactions which you can replicate using SQL queries against db 
+  manually, inside two txs. Run two such queries side by side to mock the deadlock test
+- We found that one SELECT..FOR UPDATE (account) query was blocking an UPDATE on transfers table (in the other tx). 
+  Why does SELECT..FOR UPDATE on one table require a block on UPDATE in transfers table? 
+  Because of a foreign key connection between the tables. PSQL thinks the foreign key in transfers table(account_id) might also be 
+  updated thats why SELECT was blocked in the second tx. 
+SOLUTION:- SELECT * FROM accounts WHERE id = $1 LIMIT 1 FOR NO KEY UPDATE
+  NO KEY UPDATE tells psql that in the next update query that we will execute, we will not be updating any keys, so psql won't lock it
+BETTER QUERY: Check the AddAccountBalance() query 
+
+Run these queries to check which processes and queries are causing the deadlock:
+  https://wiki.postgresql.org/wiki/Lock_Monitoring
