@@ -49,3 +49,50 @@ BETTER QUERY: Check the AddAccountBalance() query
 
 Run these queries to check which processes and queries are causing the deadlock:
   https://wiki.postgresql.org/wiki/Lock_Monitoring
+
+==================================================================================================
+
+Transaction isolation levels: (I from ACID properties)
+ISSUES:
+- Dirty READ:
+  A tx reads data written by other concurrent UNCOMMITTED tx 
+- Non Repeatable Read:
+  A tx reads the same row twice, and sees different value because it has been modified by other COMMITTED tx 
+- Phantom Read:
+  A tx re-executes a query to find rows that satisfy a condition and sees a different set of rows, due to changes 
+  by other COMMITTED tx 
+- Serialization Anomaly:
+  The result of a group of concurrent COMMITTED txs is impossible to achieve if we try to run them sequentially
+  in any order without overlapping
+
+4 Standard Isolation Levels: (lowest to highest)
+- Read Uncommitted:
+  can see data written by other uncommitted tx 
+
+- Read Committed: (prevents dirty read only)
+  Only see data written by committed tx (fixes Dirty Read)
+  If we have two concurrent txs updating the same row, we will be able to see the update made by tx1 inside tx2
+  only after tx1 has COMMITTED
+
+- Repeatable Read: (prevents dirty read, non repeatable read, phantom read)
+  Same read query always returns the same result (fixes Phantom Read)
+  Lets say we have two concurrent txs, selecting and updating balance from acc1; Before both tx started, lets say 
+  balance was 80. Now if in tx1 we update balance to 70, and committ it, mind you tx2 is still running, uncommitted.
+  If we select acc1 balance from tx2, we will still see old balance of 80. This ensures that in a tx, isolation is 
+  achieved from other txs. However if we were to update balance in tx2 after tx1 has committed, it will take into
+  account updated balance from tx1 as that has already committed. This is peculiar to MySQL
+
+  In PSQL, in this isolation level, tx2 will not be allowed to update acc1. CONCURRENT updates are not allowed.
+
+- Serializeable: (prevents all read errors)
+  Can achieve same result if we execute txs serially in some order instead of concurrently (fixes Serialization Anomaly).
+  In the same scenario as above, we set isolation level to Serializeable. If we select acc1 from tx2 and try updating 
+  acc1 balance from tx1, the update will be blocked as MySQL automatically sets SELECT queries to SELECT..FOR SHARE, like 
+  psql SELECT..FOR UPDATE in Serializeable Isolation Level. This can also create a DEADLOCK so each tx has a timeout. This 
+  is where ORDER of queries becomes important
+  Another example: In tx1 we run an insert statement, and in tx2 we run the same insert concurrently. In Repeatable Read lvl,
+  we will get two identical rows in the db after both txs commit.
+  However in Serializeable Isolation Level, this same thing will return an error when the last tx is committed. However PSQL 
+  will give us a hint that it might succeed if we retried
+  In MySQL, if we run identical queries in 2 concurrent txes, even select will be blocked(if there is an insert or update 
+  in the other tx), using a locking mechanism
