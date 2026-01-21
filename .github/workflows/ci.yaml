@@ -34,6 +34,12 @@ jobs:
               with:
                   go-version: "1.24.2"
 
+            - name: Install golang-migrate
+              run:
+                  $ curl -L wget
+                  http://github.com/golang-migrate/migrate/releases/download/v4.12.2/migrate.linux-amd64.tar.gz
+                  | tar xvz sudo mv migrate.linux-amd64 /usr/bin which migrate
+
             - name: Run migrations
               run: make migrateup
 
