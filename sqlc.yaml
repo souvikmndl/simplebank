@@ -8,4 +8,4 @@ packages:
       emit_json_tags: true
       emit_prepared_queries: false
       emit_interface: false
-      #emit_exact_tables_names: false
+      emit_empty_slices: true # will return empty slice instead of nil if no records are found for list queries
