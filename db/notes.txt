@@ -96,3 +96,7 @@ ISSUES:
   will give us a hint that it might succeed if we retried
   In MySQL, if we run identical queries in 2 concurrent txes, even select will be blocked(if there is an insert or update 
   in the other tx), using a locking mechanism
+
+MOCK GEN cmd:
+mockgen -destination <folder name>    <package name>/<db_folder containing iface> <Iface name>
+mockgen -destination db/mock/store.go github.com/souvikmndl/simplebank/db/sqlc Store
