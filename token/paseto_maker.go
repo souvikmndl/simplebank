@@ -41,9 +41,10 @@ func (maker *PasetoMaker) CreateToken(username string, duration time.Duration) (
 // VerifyToken checks if the token is valid or not
 func (maker *PasetoMaker) VerifyToken(token string) (*Payload, error) {
 	payload := &Payload{}
-
+	fmt.Println(token)
 	err := maker.paseto.Decrypt(token, maker.symmetricKey, payload, nil)
 	if err != nil {
+		fmt.Println(err.Error())
 		return nil, ErrInvalidToken
 	}
 
