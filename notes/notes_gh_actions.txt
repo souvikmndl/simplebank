@@ -1,0 +1,28 @@
+- Github Actions is a CI/CD Tool
+- We use Workflow to setup our CI/CD 
+- Workflow:
+    - Is an automated procedure
+    - Made up of 1+ jobs
+    - Triggered by events, scheduled events or manually
+    - To setup, add a .yaml file inside .github/workflows
+- We need a Runner for each job in a workflow
+- Runner:
+    - Is a server to run the jobs
+    - Runs 1 job at a time 
+    - Github hosted or self hosted 
+    - Reports progress, logs and results to Github 
+    - yaml file keyword: "runs-on"
+- Job:
+    - set of steps that execute on the same runner 
+    - normal jobs run in parallel 
+    - dependent jobs run serially
+- Step:
+    - Is an individual task 
+    - Runs serially within a job 
+    - Contains 1+ actions 
+- Action:
+    - is a standalone cmd 
+    - runs serially within a step 
+    - can be reused
+
+
