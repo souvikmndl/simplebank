@@ -121,5 +121,14 @@ Using the docker network commands:
 ]
 
 Running simplebank on our bank-network and connecting to postgres12 container:
-- docker run --name simplebank --network bank-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE="postgresql://root:secret@postgres12:5432/simple_bank?          sslmode=disable" simplebank:latest
+- docker run --name simplebank --network bank-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE="postgresql://root:secret@postgres12:5432/simple_bank?sslmode=disable" simplebank:latest
 NOTE: Viper overrides app.env key-val pairs with those found in the environment. Thats why we can pass a dynamic dbhost when running the container
+
+-- This means docker will start the container with this cmd: /app/start.sh /app/main
+CMD ["/app/main"]
+ENTRYPOINT [ "/app/start.sh" ]
+
+docker compose down --> removes all containers and resources(not images) created by the docker compose up cmd 
+
+- we can use a "depends_on" param in the docker compose file to make sure that one container depending on another is built
+  after it only. We can also use an eficode "wait-for" tool to make sure our simplebank api service waits till postgres is up and running
