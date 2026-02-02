@@ -1,0 +1,134 @@
+Remove images or containers
+- docker rm <container_name>
+- docker rmi <image_name>
+
+Inspect image or container:
+- docker inspect <image_container_name>
+
+Using the docker network commands:
+- connect     Connect a container to a network
+- create      Create a network
+- disconnect  Disconnect a container from a network
+- inspect     Display detailed information on one or more networks
+- ls          List networks
+- prune       Remove all unused networks
+- rm          Remove one or more networks
+
+- the "bridge" network is the default network.
+- docker network create bank-network
+- docker network connect bank-network
+- docker network inspect bank-network
+[
+    {
+        "Name": "bank-network",
+        "Id": "a3e5767746f33785b6eda935e591725160fbf613ac6e1c7bf6ecb6bd82ce2443",
+        "Created": "2026-02-01T15:15:27.660567841Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {
+            "com.docker.network.enable_ipv4": "true",
+            "com.docker.network.enable_ipv6": "false"
+        },
+        "Labels": {},
+        "Containers": {},
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.18.0.0/16": {
+                        "IPsInUse": 3,
+                        "DynamicIPsAvailable": 65533
+                    }
+                }
+            }
+        }
+    }
+]
+--> now we connect our running postgres12 container to the bank-network (see the o/p of the inspect bank-network before and after connecting postgres12 to it)
+- docker network connect bank-network postgres12
+- simplebank % docker network inspect bank-network           
+[
+    {
+        "Name": "bank-network",
+        "Id": "a3e5767746f33785b6eda935e591725160fbf613ac6e1c7bf6ecb6bd82ce2443",
+        "Created": "2026-02-01T15:15:27.660567841Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv4": true,
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.18.0.0/16",
+                    "IPRange": "",
+                    "Gateway": "172.18.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Options": {
+            "com.docker.network.enable_ipv4": "true",
+            "com.docker.network.enable_ipv6": "false"
+        },
+        "Labels": {},
+        "Containers": {
+            "46c91ae745bde8508e83ddc572eedf7f424210f38d6cf0e876a0be2275bd21d9": {
+                "Name": "postgres12",
+                "EndpointID": "5a18881f59a1f2b54912a48ae1411d1ab97bc6f1e5804f001d4d2fec379c6c18",
+                "MacAddress": "3e:06:8a:2b:16:19",
+                "IPv4Address": "172.18.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Status": {
+            "IPAM": {
+                "Subnets": {
+                    "172.18.0.0/16": {
+                        "IPsInUse": 4,
+                        "DynamicIPsAvailable": 65532
+                    }
+                }
+            }
+        }
+    }
+]
+
+Running simplebank on our bank-network and connecting to postgres12 container:
+- docker run --name simplebank --network bank-network -p 8080:8080 -e GIN_MODE=release -e DB_SOURCE="postgresql://root:secret@postgres12:5432/simple_bank?sslmode=disable" simplebank:latest
+NOTE: Viper overrides app.env key-val pairs with those found in the environment. Thats why we can pass a dynamic dbhost when running the container
+
+-- This means docker will start the container with this cmd: /app/start.sh /app/main
+CMD ["/app/main"]
+ENTRYPOINT [ "/app/start.sh" ]
+
+docker compose down --> removes all containers and resources(not images) created by the docker compose up cmd 
+
+- we can use a "depends_on" param in the docker compose file to make sure that one container depending on another is built
+  after it only. We can also use an eficode "wait-for" tool to make sure our simplebank api service waits till postgres is up and running
