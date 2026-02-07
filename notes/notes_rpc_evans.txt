@@ -1,0 +1,8 @@
+- the evans package using reflection can list our grpc services
+- evans --host localhost --port 9090 -r repl
+- show package --> will list packages
+- package <package_name> --> select package 
+- show service --> lists services in package 
+- service <service_name> --> select service 
+- show rpc --> lists our defined rpcs 
+- call <rpc_name> --> calls our rpc

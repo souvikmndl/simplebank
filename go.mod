@@ -8,12 +8,19 @@ require (
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-playground/validator/v10 v10.30.1
 	github.com/google/uuid v1.6.0
+	github.com/grpc-ecosystem/grpc-gateway/v2 v2.27.7
 	github.com/lib/pq v1.10.9
 	github.com/o1egl/paseto v1.0.0
+	github.com/rakyll/statik v0.1.8
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
 	go.uber.org/mock v0.6.0
 	golang.org/x/crypto v0.47.0
+	google.golang.org/genproto/googleapis/api v0.0.0-20260128011058-8636f8732409
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260203192932-546029d2fa20
+	google.golang.org/grpc v1.78.0
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc v1.6.1
+	google.golang.org/protobuf v1.36.11
 )
 
 require (
@@ -56,6 +63,12 @@ require (
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/sys v0.40.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+)
+
+tool (
+	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
+	github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+	google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	google.golang.org/protobuf/cmd/protoc-gen-go
 )
