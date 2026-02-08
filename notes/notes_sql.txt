@@ -100,3 +100,37 @@ ISSUES:
 MOCK GEN cmd:
 mockgen -destination <folder name>    <package name>/<db_folder containing iface> <Iface name>
 mockgen -destination db/mock/store.go github.com/souvikmndl/simplebank/db/sqlc Store
+
+Partial Updates 
+UPDATE users 
+SET 
+    hashed_password = CASE  
+        WHEN @set_hashed_password::boolean = TRUE THEN @hashed_password 
+        ELSE hashed_password 
+    END,
+    full_name = CASE 
+        WHEN @set_full_name::boolean = TRUE THEN @full_name
+        ELSE full_name
+    END,
+    email = CASE 
+        WHEN @set_email::boolean = TRUE THEN @email 
+        ELSE email
+    END
+WHERE 
+    username = @username 
+RETURNING *;
+
+- @set_hashed_password::boolean = TRUE 
+  - creates an arg named "SethashedPassword" of type boolean in the params struct
+
+- if else condition, if set_hashed_password == true, then set hashed_password in the db col to 
+  the value of the incoming hashed_password (@hashed_password )
+hashed_password = CASE  
+    WHEN @set_hashed_password::boolean = TRUE THEN @hashed_password 
+    ELSE hashed_password 
+END,
+
+COALESCE:
+- sqlc.narg --> nullable params --> in golang the type will be sql.NullString
+- hashed_password = incoming hashed_password != null? nullable param hashed_password: original_hashed_password 
+hashed_password = COALESCE(sqlc.narg(hashed_password), hashed_password),
