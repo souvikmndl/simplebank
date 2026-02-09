@@ -9,6 +9,7 @@ import (
 // Store provides all funcs to execute db queries and txs
 type Store interface {
 	Querier
+	CreateUserTx(ctx context.Context, arg CreateUserTxParams) (CreateUserTxResult, error)
 	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
 }
 
